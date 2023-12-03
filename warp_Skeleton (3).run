@@ -1,0 +1,34 @@
+###################################################
+#### Write your names and student numbers here ####
+
+
+#Reezwan-Us Sami 1007767141
+#Gurleen Kaur Virdi 1009135240
+
+###################################################
+#### Read model and data files. Include the address of your .mod and .dat file. Here is an example:
+#model '\\SRVB\Homes$\shourabi\Desktop\MIE262_Project\warp.mod';
+reset;
+model warp_Skeleton.mod;
+data warp_Skeleton.dat;
+
+###################################################
+############## Solve your model here ##############
+# NOTE: DO NOT TOUCH THIS PART.
+option solver gurobi;
+solve;
+
+###################################################
+#### Print the information of the solution here
+
+display TotalProfit;
+
+for {p in Products}{
+display Production[p];
+}
+for {p in Products}{
+display dual[Production[p]];
+}
+for {p in Products}{
+display Production[p].rc;
+}

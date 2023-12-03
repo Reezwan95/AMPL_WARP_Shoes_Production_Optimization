@@ -1,0 +1,97 @@
+###################################################
+#### Write your names and student numbers here ####
+#Reezwan-Us Sami 1007767141
+#Gurleen Kaur Virdi 1009135240
+
+##make sure the .mod and .dat files have the exact same parameters and sets
+##make changes to the obj function, parameters and constraints accordingly 
+##to suit the requirements of the project
+
+###################################################
+## Define your parameters and sets here
+# Sets
+set Products;                   # Set of different types of shoes
+set Machines;                # Set of machines
+set RawMaterials; # Set of raw materials
+#set Months := 1..12;
+#set Months;            
+#set Year;
+
+###################################################
+############ Read Data From Access ################
+#### NOTE: Include the address of the .mdb file in your code. 
+####### You can use the .mdb file in S drive ("S:\ECFPC"). Check below for an example.
+############ Read data from Product_Master table here:
+table Product_Master IN "ODBC" "C:\Users\samireez\WARP2011W.mdb" "Product_Master":
+   Products <- [Product_Num],
+   SalesPrice ~ Sales_Price;
+   
+read table Product_Master;
+############ Read data from Machine_Master table here:
+table Machine_Master IN "ODBC" "C:\Users\samireez\WARP2011W.mdb" "Machine_Master":
+   Machines <- [Machine_Name],
+   MachineCost ~ OpCost_per_min;
+   # Initialize NumberOfMachines to zero
+for {m in Machines} {
+    let NumberOfMachines[m] := 0;
+}
+for {m in Machines} {
+    let NumberOfMachines[m] := NumberOfMachines[m] + 1;
+}
+   
+read table Machine_Master;
+   #MachineCapacity -> [Capacity];
+
+############ Read data from RM_Master table here:
+table RM_Master IN "ODBC" "C:\Users\samireez\WARP2011W.mdb" "RM_Master":
+   RawMaterials <- [RM_Num],
+   RawMatCost ~ Cost;
+read table RM_Master;
+############ Read Machine_Assign data from table
+## Before reading table, we should use let command to assign zero for machines that are not being used. Here is the code:
+for {p in Products, m in Machines}{
+	let ProdMachineTime[p,m]:=0;
+}
+
+## Now read the data from Machine_Assign table
+table Machine_Assign IN "ODBC" "C:\Users\samireez\WARP2011W.mdb" "Machine_Assign":
+   [Product_Num, Machine_Num], ProdMachineTime ~ Avg_Duration;
+read table Machine_Assign;
+   
+############# Read Warehouse_Master data from table
+
+table Warehouse_Master IN "ODBC" "C:\Users\samireez\WARP2011W.mdb" "Warehouse_Master":
+	Warehouse <- [Warehouse_Num],
+	TotalWarehouseCapacity ~ Capacity;   
+read table Warehouse_Master;
+
+
+# Initialize raw material usage to zero for all shoe-material pairs
+for {p in Products, r in RawMaterials}{
+    let RawMatUsage[p,r] := 0;
+}
+# Now read the data from BOM table
+
+table BOM IN "ODBC" "C:\Users\samireez\WARP2011W.mdb" "BOM":
+   [Product_Num, RM_Num], RawMatUsage ~ Quantity;
+
+read table BOM;
+
+############# Read data from Product_Demand table here. For example, The following code reads the demand for month 1 of each year.
+table Product_Demand IN "ODBC" "C:\Users\samireez\WARP2011W.mdb" "SQL=SELECT Product_Num, SUM(TotalDemand) as TotalDemand FROM Product_Demand WHERE Month=1 GROUP BY Product_Num":
+  #something is wrong here which is causing the program to not run. pthat is why we could not ans the questions
+  #please consider the circumstances
+  #Months <- [Month],
+  [Product_Num, Months], EstimatedDemand ~ Demand;
+  
+read table Product_Demand;
+
+#####################################################
+################ Predict Demand Here ################
+# Hint: Use for loop over Shoes and use let command.
+
+# Doubling the historical demand for February 2006
+#for {p in Products} {
+    #let FebruaryDemand[p] := 2 * (sum {y in 1997..2003} HistoricalDemand[p, y]) / 7;
+#}
+
